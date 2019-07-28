@@ -1,4 +1,4 @@
-package com.enjoy.mybatis.ch01;
+package com.enjoy.mybatis.ch01.entity;
 
 /**
  * <b>Author</b>: Hsiang Leekwok<br/>

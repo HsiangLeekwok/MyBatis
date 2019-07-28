@@ -3,7 +3,8 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.enjoy.mybatis.ch01.mapper.TAccountMapper">
-    <select id="selectByPrimaryKey" resultType="com.enjoy.mybatis.ch01.TAccount" parameterType="java.lang.Integer">
+    <!--confit里设置了别名之后，这里的resultType即可直接写类名而不用写全类名-->
+    <select id="selectByPrimaryKey" resultType="TAccount" parameterType="java.lang.Integer">
         select
             id,
             name,

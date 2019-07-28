@@ -1,5 +1,7 @@
 package com.enjoy.mybatis.ch01;
 
+import com.enjoy.mybatis.ch01.entity.TAccount;
+import com.enjoy.mybatis.ch01.entity.TUser;
 import org.junit.Test;
 
 import java.sql.*;
@@ -16,8 +18,8 @@ import java.util.List;
 public class JdbcDemo {
 
     static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-    static final String DB_URL = "jdbc:mysql://192.168.22.130:3306/demo?useUnicode=true&" +
-            "characterEncoding=utf8&allowMultiQueries=true";
+    static final String DB_URL = "jdbc:mysql://192.168.32.130:3306/demo?useUnicode=true&" +
+            "characterEncoding=utf8&allowMultiQueries=true&useSSL=false";
 
     static final String USER = "root";
     static final String PASS = "root1234%";
@@ -26,7 +28,7 @@ public class JdbcDemo {
     public void queryStatementDemo() {
         Connection connection = null;
         Statement stmt = null;
-        List<TAccount> accounts = new ArrayList<>();
+        List<TUser> users = new ArrayList<>();
         try {
             // step1、注册 mysql 的驱动
             Class.forName(JDBC_DRIVER);
@@ -38,22 +40,21 @@ public class JdbcDemo {
             // step3、创建一个查询
             System.out.println("creating statement.....");
             stmt = connection.createStatement();
-            String name = "lucy";
-            String sql = "select * from account where name = '" + name + "'";
+            String name = "lison";
+            String sql = "select * from t_user where user_name = '" + name + "'";
             ResultSet rs = stmt.executeQuery(sql);
 
             // step4、从resultset结果集中获取数据并转化成bean
             while (rs.next()) {
                 System.out.println("-------------------------");
                 // 读取数据并且将每一列转换到对象中
-                TAccount account = new TAccount();
-                account.setId(rs.getInt("id"));
-                account.setName(rs.getString("name"));
-                ;
-                account.setBalance(rs.getInt("balance"));
+                TUser user = new TUser();//new TUser(0,"");
+                user.setId(rs.getInt("id"));
+                user.setUserName(rs.getString("user_name"));
+                user.setRealName(rs.getString("real_name"));
 
-                System.out.println(account.toString());
-                accounts.add(account);
+                System.out.println(user.toString());
+                users.add(user);
             }
 
             // step5、关闭连接

@@ -6,6 +6,16 @@
 
     <properties resource="db.properties"/>
 
+    <settings>
+        <!--将数据库中的下划线自动改为驼峰命名-->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+    </settings>
+
+    <!--别名配置：给映射类加别名之后，mapper里的resultType就可以直接写类名字，而不用写全类名-->
+    <typeAliases>
+        <package name="com.enjoy.mybatis.ch01.entity"/>
+    </typeAliases>
+
     <!--配置environment环境-->
     <environments default="development">
         <!--环境配置1：每个SqlSessionFactory对应一个环境-->
@@ -14,10 +24,10 @@
             <transactionManager type="JDBC"/>
             <!--dataSource 指连接源配置，POOLED是JDBC连接对象的数据源连接池的实现-->
             <dataSource type="UNPOOLED">
-                <property name="driver" value="${jdbc_driver}"></property>
-                <property name="url" value="${jdbc_url}"></property>
-                <property name="username" value="${jdbc_username}"></property>
-                <property name="password" value="${jdbc_password}"></property>
+                <property name="driver" value="${jdbc_driver}"/>
+                <property name="url" value="${jdbc_url}"/>
+                <property name="username" value="${jdbc_username}"/>
+                <property name="password" value="${jdbc_password}"/>
             </dataSource>
         </environment>
     </environments>
@@ -26,6 +36,7 @@
     <mappers>
         <!--这是告诉Mybatis区哪找持久化类的映射文件，对于在src下的文件直接写文件名，
             如果在某包下，则要写明路径,如：com/mybatistest/config/User.xml-->
-        <mapper resource="sqlmapper/TAccountMapper.xml"></mapper>
+        <mapper resource="sqlmapper/TAccountMapper.xml"/>
+        <mapper resource="sqlmapper/TUserMapper.xml"/>
     </mappers>
 </configuration>

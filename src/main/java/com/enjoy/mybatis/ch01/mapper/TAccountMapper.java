@@ -1,6 +1,6 @@
 package com.enjoy.mybatis.ch01.mapper;
 
-import com.enjoy.mybatis.ch01.TAccount;
+import com.enjoy.mybatis.ch01.entity.TAccount;
 
 /**
  * <b>Author</b>: Hsiang Leekwok<br/>
