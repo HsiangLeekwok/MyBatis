@@ -1,11 +1,13 @@
 package com.enjoy.mybatis.ch01;
 
+import ch.qos.logback.classic.turbo.TurboFilter;
 import com.enjoy.mybatis.ch01.entity.EmailAndSexBean;
 import com.enjoy.mybatis.ch01.entity.TAccount;
 import com.enjoy.mybatis.ch01.entity.TUser;
 import com.enjoy.mybatis.ch01.mapper.TAccountMapper;
 import com.enjoy.mybatis.ch01.mapper.TUserMapper;
 import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
@@ -80,6 +82,18 @@ public class MyBatisDemo {
     }
 
     @Test
+    public void testSelectIfOper() {
+        SqlSession session = factory.openSession();
+        TUserMapper mapper = session.getMapper(TUserMapper.class);
+        String email = "qq.com";
+        Byte sex = 1;
+
+        //List<TUser> list = mapper.selectByEmailAndSex2(email, sex);
+        List<TUser> list = mapper.selectChooseOper(null, sex);
+        System.out.println(list.size());
+    }
+
+    @Test
     public void testInsertGenerateId1() {
         SqlSession session = factory.openSession();
         TUserMapper mapper = session.getMapper(TUserMapper.class);
@@ -112,6 +126,18 @@ public class MyBatisDemo {
         int ret = mapper.insertForeach4Batch(users);
         session.commit();
         System.out.println("insert batch: " + ret + " rows.");
+    }
+
+    @Test
+    public void testInsertBatchExecutor() {
+        SqlSession session = factory.openSession(ExecutorType.BATCH, true);
+        TUserMapper mapper=session.getMapper(TUserMapper.class);
+
+        TUser user=new TUser();
+        user.setUserName("markk");
+        user.setRealName("猫猫");
+        user.setEmail("xx@qq.com");
+        user.setMobile("13999999999");
     }
 
     @Test

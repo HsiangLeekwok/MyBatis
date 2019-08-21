@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.enjoy.mybatis.ch03.mappings.THealthReportFemaleMapper" >
+  <resultMap id="BaseResultMap" type="com.enjoy.mybatis.ch03.entity.THealthReportFemale" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="item" property="item" jdbcType="VARCHAR" />
+    <result column="score" property="score" jdbcType="DECIMAL" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, item, score
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_health_report_female
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectByUserId" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+    select
+    <include refid="Base_Column_List"/>
+    from t_health_report_female
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_health_report_female
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.enjoy.mybatis.ch03.entity.THealthReportFemale" >
+    <selectKey resultType="java.lang.Integer" keyProperty="id" order="BEFORE" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_health_report_female (id, item, score
+      )
+    values (#{id,jdbcType=INTEGER}, #{item,jdbcType=VARCHAR}, #{score,jdbcType=DECIMAL}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.enjoy.mybatis.ch03.entity.THealthReportFemale" >
+    <selectKey resultType="java.lang.Integer" keyProperty="id" order="BEFORE" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_health_report_female
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      id,
+      <if test="item != null" >
+        item,
+      </if>
+      <if test="score != null" >
+        score,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      #{id,jdbcType=INTEGER},
+      <if test="item != null" >
+        #{item,jdbcType=VARCHAR},
+      </if>
+      <if test="score != null" >
+        #{score,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.enjoy.mybatis.ch03.entity.THealthReportFemale" >
+    update t_health_report_female
+    <set >
+      <if test="item != null" >
+        item = #{item,jdbcType=VARCHAR},
+      </if>
+      <if test="score != null" >
+        score = #{score,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.enjoy.mybatis.ch03.entity.THealthReportFemale" >
+    update t_health_report_female
+    set item = #{item,jdbcType=VARCHAR},
+      score = #{score,jdbcType=DECIMAL}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

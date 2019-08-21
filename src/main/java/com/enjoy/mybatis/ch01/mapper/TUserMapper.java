@@ -26,6 +26,8 @@ public interface TUserMapper {
 
     List<TUser> selectByEmailAndSex3(EmailAndSexBean easb);
 
+    List<TUser> selectChooseOper(@Param("email") String email,@Param("sex") Byte sex);
+
     int deleteByPrimaryKey(Integer id);
 
     int insert(TUser user);

@@ -9,6 +9,10 @@
     <settings>
         <!--将数据库中的下划线自动改为驼峰命名-->
         <setting name="mapUnderscoreToCamelCase" value="true"/>
+        <!-- 配置延迟加载 -->
+        <setting name="aggressiveLazyLoading" value="false"/>
+        <!-- 缓存默认开启，但需要在映射文件中配置二级缓存 -->
+        <!-- <setting name="cacheEnabled" value="true"/> -->
     </settings>
 
     <!--别名配置：给映射类加别名之后，mapper里的resultType就可以直接写类名字，而不用写全类名-->
@@ -38,5 +42,14 @@
             如果在某包下，则要写明路径,如：com/mybatistest/config/User.xml-->
         <mapper resource="sqlmapper/TAccountMapper.xml"/>
         <mapper resource="sqlmapper/TUserMapper.xml"/>
+        <mapper resource="mappings/TUserMapper.xml"/>
+        <mapper resource="mappings/TPositionMapper.xml"/>
+        <mapper resource="mappings/TJobHistoryMapper.xml"/>
+        <mapper resource="mappings/TJobHistoryMapper.xml"/>
+        <mapper resource="mappings/THealthReportFemaleMapper.xml"/>
+        <mapper resource="mappings/THealthReportMaleMapper.xml"/>
+        <mapper resource="mappings/TUserRoleMapper.xml"/>
+        <mapper resource="mappings/TRoleMapper.xml"/>
+        <mapper resource="mappings/TRolePermissionMapper.xml"/>
     </mappers>
 </configuration>

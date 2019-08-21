@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.enjoy.mybatis.ch03.mappings.TUserMapper">
+
+    <!--    开启缓存需要在配置文件中配置相应的参数，注意，二级缓存容易出现脏读 -->
+    <!--  <cache eviction="LRU" flushInterval="60000" size="512" readOnly="true"/>-->
+    <!--    可以引用其他命名空间的缓存配置-->
+    <!--    <cache-ref namespace="com.enjoy.mybatis.ch03.mappings.TJobHistoryMapper"/>-->
+
+    <resultMap id="BaseResultMap" type="com.enjoy.mybatis.ch03.entity.TUser">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="user_name" property="userName" jdbcType="VARCHAR"/>
+        <result column="real_name" property="realName" jdbcType="VARCHAR"/>
+        <result column="sex" property="sex" jdbcType="TINYINT"/>
+        <result column="mobile" property="mobile" jdbcType="VARCHAR"/>
+        <result column="email" property="email" jdbcType="VARCHAR"/>
+        <result column="note" property="note" jdbcType="VARCHAR"/>
+        <result column="position_id" property="positionId" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+    id, user_name, real_name, sex, mobile, email, note, position_id
+  </sql>
+    <sql id="OtherColumnList">
+        a.id, a.user_name, a.real_name, a.sex, a.mobile
+    </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select
+        <include refid="Base_Column_List"/>
+        from t_user
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+
+    <resultMap id="userAndPosition1" type="com.enjoy.mybatis.ch03.entity.TUser" extends="BaseResultMap">
+        <!--
+        association 标签
+        select：另一个映射查询的id，mybatis开会额外执行这个查询获取嵌套对象的结果
+        column：列名（或别名），将住查询中列的结果作为潜逃查询的参数
+        fetchType：数据加载方式，可选值为 lazy 和 eager，分别为延迟加载和积极加载，这个配置会覆盖全局的lazyLoadingEnabled配置
+
+        tips：N+1 查询的问题
+            概括地讲，N+1 查询问题可以是这样引起的：
+            1、执行了一个单独的 SQL 语句来获取结果列表就是+1，
+            2、对返回的每条记录，又执行了一个查询语句来为每个加载细节就是N
+            这会导致成百上千的SQL语句被执行，所以设置 lazy 可以避免这个场景
+         全局设置也可以改善这个状况
+         <setting name="aggressiveLazyLoading" value="false"/>
+         -->
+        <association property="position" javaType="com.enjoy.mybatis.ch03.entity.TPosition" columnPrefix="post_">
+            <id column="id" property="id"/>
+            <result column="name" property="postName"/>
+            <result column="note" property="note"/>
+        </association>
+    </resultMap>
+    <resultMap id="userAndPosition2" type="com.enjoy.mybatis.ch03.entity.TUser" extends="BaseResultMap">
+        <!-- 多个条件时，column="position_id=id, user_xx=xxx"-->
+        <!-- 开启懒加载fetchType=lazy -->
+        <association property="position" column="position_id" fetchType="lazy"
+                     select="com.enjoy.mybatis.ch03.mappings.TPositionMapper.selectByPrimaryKey"/>
+    </resultMap>
+    <!-- 嵌套结果，无论是否用到关联的字段，一次性查出所有数据 -->
+    <select id="selectUserPosition1" resultMap="userAndPosition1">
+    select
+    user_name, real_name, sex, mobile, email,
+    a.note, b.id post_id, b.post_name, b.note post_note
+    from t_user a, t_position b
+    where a.position_id = b.id
+  </select>
+    <!-- 懒加载，嵌套查询 -->
+    <select id="selectUserPosition2" resultMap="userAndPosition2">
+    select a.id, a.user_name, a.real_name, a.sex, a.mobile, a.position_id from t_user a
+  </select>
+
+
+    <!-- 直接加载所有数据 -->
+    <resultMap id="userAndJobs1" extends="BaseResultMap" type="com.enjoy.mybatis.ch03.entity.TUser">
+        <!--
+        collection
+        -->
+        <collection property="jobs" ofType="com.enjoy.mybatis.ch03.entity.TJobHistory">
+            <result column="comp_name" property="compName" jdbcType="VARCHAR"/>
+            <result column="years" property="years" jdbcType="INTEGER"/>
+            <result column="title" property="title" jdbcType="VARCHAR"/>
+        </collection>
+    </resultMap>
+    <!-- 懒加载工作历史列表 -->
+    <resultMap id="userAndJobs2" extends="BaseResultMap" type="com.enjoy.mybatis.ch03.entity.TUser">
+        <collection property="jobs" fetchType="lazy" column="id"
+                    select="com.enjoy.mybatis.ch03.mappings.TJobHistoryMapper.selectByUserId"/>
+    </resultMap>
+    <!-- 嵌套结果，一次性查出所有数据 -->
+    <select id="selectUserJobs1" resultMap="userAndJobs1">
+    select
+        a.id, a.user_name, a.real_name, a.sex, a.mobile,
+        b.comp_name, b.years, b.title
+    from t_user a, t_job_history b
+    where a.id = b.user_id
+  </select>
+    <!-- 嵌套查询，懒加载 -->
+    <select id="selectUserJobs2" resultMap="userAndJobs2">
+    select a.id, a.user_name, a.real_name, a.sex, a.mobile
+    from t_user a
+  </select>
+
+    <!-- 多对多查询用户的角色列表 -->
+    <resultMap id="userRoles" type="com.enjoy.mybatis.ch03.entity.TUser" extends="BaseResultMap">
+        <!-- 映射到用户角色中间表：通过用户的 id 字段查询中间表中的 role_id 列表 -->
+        <collection property="roles" fetchType="lazy" ofType="com.enjoy.mybatis.ch03.entity.TRole" columnPrefix="role_">
+            <result property="id" column="id"/>
+            <result property="roleName" column="name"/>
+            <result property="note" column="note"/>
+        </collection>
+    </resultMap>
+    <select id="selectUserRoles" resultMap="userRoles">
+        select
+        a.id, a.user_name, a.real_name, a.sex, a.mobile,
+        b.role_id role_id
+        from t_user a, t_user_role b
+        where a.id = b.user_id
+    </select>
+
+
+    <!-- 查找男性用户的健康体检表 -->
+    <resultMap id="userAndHealthReportMale" type="com.enjoy.mybatis.ch03.entity.TUser" extends="userAndHealthReport">
+        <collection property="healthReports" column="id"
+                    select="com.enjoy.mybatis.ch03.mappings.THealthReportMaleMapper.selectByUserId"/>
+    </resultMap>
+    <!-- 查找女性用户的健康体检表 -->
+    <resultMap id="userAndHealthReportFemale" type="com.enjoy.mybatis.ch03.entity.TUser" extends="userAndHealthReport">
+        <collection property="healthReports" column="id"
+                    select="com.enjoy.mybatis.ch03.mappings.THealthReportFemaleMapper.selectByUserId"/>
+    </resultMap>
+    <!-- 鉴定器：这里根据 sex 值不同区分不同的查询方式 -->
+    <resultMap id="userAndHealthReport" type="com.enjoy.mybatis.ch03.entity.TUser" extends="BaseResultMap">
+        <discriminator javaType="int" column="sex">
+            <case value="1" resultMap="userAndHealthReportMale"/>
+            <case value="2" resultMap="userAndHealthReportFemale"/>
+        </discriminator>
+    </resultMap>
+    <!-- 查找用户健康体检表 -->
+    <select id="selectUserHealthReport" resultMap="userAndHealthReport">
+        select
+        <include refid="Base_Column_List"/>
+        from t_user a
+    </select>
+
+
+    <!-- 通过email和sex模糊查询 -->
+    <select id="selectByEmailAndSexWithTrim" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_user
+        where
+        <trim suffixOverrides=" and">
+            <if test="email != null and email != ''">
+                email like CONCAT('%', #{email}, '%') and
+            </if>
+            <if test="sex != null">
+                sex = #{sex, jdbcType=TINYINT} and
+            </if>
+        </trim>
+    </select>
+
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from t_user
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+    <insert id="insert" parameterType="com.enjoy.mybatis.ch03.entity.TUser">
+        <selectKey resultType="java.lang.Integer" keyProperty="id" order="BEFORE">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into t_user (id, user_name, real_name,
+        sex, mobile, email,
+        note, position_id)
+        values (#{id,jdbcType=INTEGER}, #{userName,jdbcType=VARCHAR}, #{realName,jdbcType=VARCHAR},
+        #{sex,jdbcType=TINYINT}, #{mobile,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},
+        #{note,jdbcType=VARCHAR}, #{positionId,jdbcType=INTEGER})
+    </insert>
+    <insert id="insertSelective" parameterType="com.enjoy.mybatis.ch03.entity.TUser">
+        <selectKey resultType="java.lang.Integer" keyProperty="id" order="BEFORE">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into t_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            <if test="userName != null">
+                user_name,
+            </if>
+            <if test="realName != null">
+                real_name,
+            </if>
+            <if test="sex != null">
+                sex,
+            </if>
+            <if test="mobile != null">
+                mobile,
+            </if>
+            <if test="email != null">
+                email,
+            </if>
+            <if test="note != null">
+                note,
+            </if>
+            <if test="positionId != null">
+                position_id,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{id,jdbcType=INTEGER},
+            <if test="userName != null">
+                #{userName,jdbcType=VARCHAR},
+            </if>
+            <if test="realName != null">
+                #{realName,jdbcType=VARCHAR},
+            </if>
+            <if test="sex != null">
+                #{sex,jdbcType=TINYINT},
+            </if>
+            <if test="mobile != null">
+                #{mobile,jdbcType=VARCHAR},
+            </if>
+            <if test="email != null">
+                #{email,jdbcType=VARCHAR},
+            </if>
+            <if test="note != null">
+                #{note,jdbcType=VARCHAR},
+            </if>
+            <if test="positionId != null">
+                #{positionId,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.enjoy.mybatis.ch03.entity.TUser">
+        update t_user
+        <set>
+            <if test="userName != null">
+                user_name = #{userName,jdbcType=VARCHAR},
+            </if>
+            <if test="realName != null">
+                real_name = #{realName,jdbcType=VARCHAR},
+            </if>
+            <if test="sex != null">
+                sex = #{sex,jdbcType=TINYINT},
+            </if>
+            <if test="mobile != null">
+                mobile = #{mobile,jdbcType=VARCHAR},
+            </if>
+            <if test="email != null">
+                email = #{email,jdbcType=VARCHAR},
+            </if>
+            <if test="note != null">
+                note = #{note,jdbcType=VARCHAR},
+            </if>
+            <if test="positionId != null">
+                position_id = #{positionId,jdbcType=INTEGER},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.enjoy.mybatis.ch03.entity.TUser">
+    update t_user
+    set user_name = #{userName,jdbcType=VARCHAR},
+      real_name = #{realName,jdbcType=VARCHAR},
+      sex = #{sex,jdbcType=TINYINT},
+      mobile = #{mobile,jdbcType=VARCHAR},
+      email = #{email,jdbcType=VARCHAR},
+      note = #{note,jdbcType=VARCHAR},
+      position_id = #{positionId,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>
