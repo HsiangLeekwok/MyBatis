@@ -1,11 +1,15 @@
 package com.enjoy.mybatis.ch03.entity;
 
+import java.util.List;
+
 public class TRole {
     private Integer id;
 
     private String roleName;
 
     private String note;
+
+    private List<TUser> users;
 
     public Integer getId() {
         return id;
@@ -37,6 +41,7 @@ public class TRole {
                 "id=" + id +
                 ", roleName='" + roleName + '\'' +
                 ", note='" + note + '\'' +
+                ", users=" + users +
                 '}';
     }
 }

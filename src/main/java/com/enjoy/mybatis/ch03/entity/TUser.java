@@ -133,11 +133,11 @@ public class TUser {
                 ", mobile='" + mobile + '\'' +
                 ", email='" + email + '\'' +
                 ", note='" + note + '\'' +
-                ", positionId=" + positionId +
-                ", position=" + position +
-                ", jobs=" + jobs +
-                ", healthReports=" + healthReports +
-                ", roles=" + roles +
+                //", positionId=" + positionId +
+                //", position=" + position +
+                //", jobs=" + jobs +
+                //", healthReports=" + healthReports +
+                //", roles=" + roles +
                 '}';
     }
 }

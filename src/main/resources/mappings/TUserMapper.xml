@@ -103,14 +103,34 @@
     from t_user a
   </select>
 
+    <!-- 多对多嵌套结果，一次性查询出所有数据来填充POJO对象 -->
+    <resultMap id="userRolesAllInOne" type="com.enjoy.mybatis.ch03.entity.TUser" extends="BaseResultMap">
+        <collection property="roles" ofType="com.enjoy.mybatis.ch03.entity.TRole" columnPrefix="role_">
+            <result column="id" property="id"/>
+            <result column="name" property="roleName"/>
+            <result column="note" property="note"/>
+        </collection>
+    </resultMap>
+    <select id="selectUserRolesAllInOne" resultMap="userRolesAllInOne">
+        select
+        a.id, a.user_name, a.real_name, a.sex, a.mobile,
+        c.id role_id, c.role_name role_name, c.note role_note
+        from t_user a, t_user_role b, t_role c
+        where a.id = b.user_id and b.role_id = c.id
+    </select>
+
+    <!-- 多对多嵌套结果，主表查询，通过角色id反查用户信息 -->
+    <select id="selectUserWithRoleId" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select
+        <include refid="Base_Column_List"/>
+        from t_user a, t_user_role b
+        where a.id = b.user_id and b.role_id = #{roleId,jdbcType=INTEGER}
+    </select>
+
     <!-- 多对多查询用户的角色列表 -->
     <resultMap id="userRoles" type="com.enjoy.mybatis.ch03.entity.TUser" extends="BaseResultMap">
-        <!-- 映射到用户角色中间表：通过用户的 id 字段查询中间表中的 role_id 列表 -->
-        <collection property="roles" fetchType="lazy" ofType="com.enjoy.mybatis.ch03.entity.TRole" columnPrefix="role_">
-            <result property="id" column="id"/>
-            <result property="roleName" column="name"/>
-            <result property="note" column="note"/>
-        </collection>
+        <!-- 映射到用户角色表：通过 role_id 角色列表 -->
+        <collection property="roles" fetchType="lazy" select="com.enjoy.mybatis.ch03.mappings.TRoleMapper.selectByPrimaryKey" column="role_id"/>
     </resultMap>
     <select id="selectUserRoles" resultMap="userRoles">
         select

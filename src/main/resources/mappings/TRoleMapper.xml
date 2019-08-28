@@ -21,6 +21,18 @@
     where id in
     <foreach collection="list" item="item" index="i" open="(" close=")">#{item}</foreach>
   </select>
+
+  <!-- 查询角色下的用户列表 -->
+  <resultMap id="roleUsers" type="com.enjoy.mybatis.ch03.entity.TRole" extends="BaseResultMap">
+    <collection property="users" ofType="com.enjoy.mybatis.ch03.entity.TUser" fetchType="lazy"
+                select="com.enjoy.mybatis.ch03.mappings.TUserMapper.selectUserWithRoleId" column="user_id"/>
+  </resultMap>
+  <select id="selectRoleUsers" resultMap="roleUsers">
+    select a.id, a.role_name, a.note, b.user_id
+    from t_role a, t_user_role b
+    where a.id = b.role_id
+  </select>
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from t_role
     where id = #{id,jdbcType=INTEGER}

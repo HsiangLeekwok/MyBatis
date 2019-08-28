@@ -1,6 +1,8 @@
 package com.enjoy.mybatis.ch03;
 
+import com.enjoy.mybatis.ch03.entity.TRole;
 import com.enjoy.mybatis.ch03.entity.TUser;
+import com.enjoy.mybatis.ch03.mappings.TRoleMapper;
 import com.enjoy.mybatis.ch03.mappings.TUserMapper;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
@@ -9,6 +11,7 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.management.relation.Role;
 import java.io.InputStream;
 import java.util.List;
 
@@ -42,6 +45,28 @@ public class HomeworkMany2Many {
         List<TUser> list = mapper.selectUserRoles();
         for (TUser user : list) {
             System.out.println(user);
+        }
+    }
+
+    @Test
+    public void testMany2ManyAllInOne() {
+        SqlSession session = factory.openSession();
+        TUserMapper mapper = session.getMapper(TUserMapper.class);
+
+        List<TUser> list = mapper.selectUserRolesAllInOne();
+        for (TUser user : list) {
+            System.out.println(user);
+        }
+    }
+
+    @Test
+    public void testMany2Many1() {
+        SqlSession session = factory.openSession();
+        TRoleMapper mapper = session.getMapper(TRoleMapper.class);
+
+        List<TRole> list = mapper.selectRoleUsers();
+        for (TRole role : list) {
+            System.out.println(role);
         }
     }
 }

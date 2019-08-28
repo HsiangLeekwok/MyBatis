@@ -2,7 +2,6 @@ package com.enjoy.mybatis.ch03.mappings;
 
 import com.enjoy.mybatis.ch03.entity.TRole;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public interface TRoleMapper {
@@ -14,7 +13,7 @@ public interface TRoleMapper {
 
     TRole selectByPrimaryKey(Integer id);
 
-    List<TRole> selectByPrimaryKeys(ArrayList<Integer> list);
+    List<TRole> selectRoleUsers();
 
     int updateByPrimaryKeySelective(TRole record);
 

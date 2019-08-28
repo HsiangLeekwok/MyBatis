@@ -14,6 +14,8 @@ public interface TUserMapper {
 
     TUser selectByPrimaryKey(Integer id);
 
+    TUser selectUserWithRoleId(Integer roleId);
+
     List<TUser> selectByEmailAndSexWithTrim(@Param("email") String email, @Param("sex") Byte sex);
 
     List<TUser> selectUserPosition1();
@@ -27,6 +29,10 @@ public interface TUserMapper {
     List<TUser> selectUserHealthReport();
 
     List<TUser> selectUserRoles();
+
+    List<TUser> selectUserRolesAllInOne();
+
+    List<TUser> selectUserRolesWithRole();
 
     int updateByPrimaryKeySelective(TUser record);
 
